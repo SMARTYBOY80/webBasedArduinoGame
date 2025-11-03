@@ -115,7 +115,7 @@ export default function Tetris() {
 
     let currentTetromino = getRandomTetromino();
     let dropCounter = 0;
-    let dropInterval = 100;
+    let dropInterval = 400;
     let lastTime = 0;
 
     // get random tetromino
@@ -307,6 +307,19 @@ document.addEventListener('keydown', function(event) {
         if (collision(currentTetromino)) {
           currentTetromino.y--;
         }
+      } else if (event.key === "ArrowUp") {
+        // rotate tetromino
+
+        //amazignly clever solution found by user Nitin Jadhav
+        // https://stackoverflow.com/questions/15170942/how-to-rotate-a-matrix-in-an-array-in-javascript
+
+        const rotatedShape = currentTetromino.shape[0].map((val , index) => currentTetromino.shape.map(row => row[index]).reverse());
+
+        const originalShape = currentTetromino.shape;
+        currentTetromino.shape = rotatedShape;
+        if (collision(currentTetromino)) {
+          currentTetromino.shape = originalShape; // revert if collision
+        }
       }
     });
 
@@ -333,6 +346,8 @@ document.addEventListener('keydown', function(event) {
   }, []);
 
   return (
-    <div></div>
+    <div>
+      {score}
+    </div>
   );
 }
