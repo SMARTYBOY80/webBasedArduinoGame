@@ -10,6 +10,9 @@ import { useEffect, useState } from "react";
 const boardWidth = 10;
 const boardHeight = 20;
 const blockSize = 30;
+let gameOver = false;
+
+// Tetromino interface
 
 interface tetromino {
     shape: number[][];
@@ -26,7 +29,7 @@ const tetrominoes: { [key: string]: tetromino } = {
         shape: [[1, 1, 1, 1]],
         color: "lightBlue",
         x: 0,
-        y: 0,
+        y: -2,
     },
     J: {
         shape: [
@@ -35,7 +38,7 @@ const tetrominoes: { [key: string]: tetromino } = {
         ],
         color: "darkBlue",
         x: 0,
-        y: 0,
+        y: -2,
     },
     L: {
         shape: [
@@ -44,7 +47,7 @@ const tetrominoes: { [key: string]: tetromino } = {
         ],
         color: "orange",
         x: 0,
-        y: 0,
+        y: -2,
     },
     O: {
         shape: [
@@ -53,7 +56,7 @@ const tetrominoes: { [key: string]: tetromino } = {
         ],
         color: "yellow",
         x: 0,
-        y: 0,
+        y: -2,
     },
     S: {
         shape: [
@@ -62,7 +65,7 @@ const tetrominoes: { [key: string]: tetromino } = {
         ],
         color: "green",
         x: 0,
-        y: 0,
+        y: -2,
     },
     Z: {
         shape: [
@@ -71,7 +74,7 @@ const tetrominoes: { [key: string]: tetromino } = {
         ],
         color: "red",
         x: 0,
-        y: 0,
+        y: -2,
     },
     T: {
         shape: [
@@ -80,7 +83,7 @@ const tetrominoes: { [key: string]: tetromino } = {
         ],
         color: "purple",
         x: 0,
-        y: 0,
+        y: -2,
     },
 };
 
@@ -90,7 +93,6 @@ const tetrominoes: { [key: string]: tetromino } = {
 export default function Tetris() {
     
   const [score, setScore] = useState(0);
-  const [gameOver, setGameOver] = useState(false);
 
   useEffect(() => {
 
@@ -204,8 +206,21 @@ export default function Tetris() {
       return false;
     }
 
+    // loss detection
+    function lossDetection(currentTetromino: tetromino) {
+      return collision(currentTetromino) && currentTetromino.y === 0;
+    }
+
     // game loop
     function update(time = 0) {
+
+      const deltaTime = time - lastTime;
+      lastTime = time;
+      dropCounter += deltaTime;
+
+      if (dropCounter > dropInterval) {
+        dropCounter = 0;
+      }
 
       if(collision(currentTetromino)) {
         currentTetromino.y--;
@@ -217,10 +232,25 @@ export default function Tetris() {
             }
           });
         });
-        // get new tetromino
+
+        // get new tetromino if the previous one has collided with another block or the floor and landed
         currentTetromino = getRandomTetromino();
+
+
+        // check if there is a loss
+        if(lossDetection(currentTetromino)) {
+          gameOver = true;
+          drawBoard();
+        }
       }
 
+      // if game over, alert score and reload page
+      if (gameOver) {
+        // TODO: make it look nice in the end
+        return;
+      }
+
+      // move tetromino down by one
       currentTetromino.y++;
 
       drawBoard();
