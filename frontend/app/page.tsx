@@ -168,8 +168,67 @@ export default function Tetris() {
       });
     }
 
-  
-    drawBoard();
+    // collision detection
+
+    // checks if block has hit the floor
+    function floorCollision(nextY: number): boolean {
+      return nextY >= boardHeight;
+    }
+
+    // checks if block has hit either wall
+    function hitWall(nextX: number): boolean {
+      return nextX < 0 || nextX >= boardWidth;
+    }
+
+    // checks if block has hit another block
+    function hitBlock(nextX: number, nextY: number): boolean {
+      return nextY >= 0 && board[nextY][nextX] !== null;
+    }
+
+    // sees if any collision will occur
+    function collision(currentTetromino: tetromino): boolean {
+      for (let y = 0; y < currentTetromino.shape.length; y++) {
+        for (let x = 0; x < currentTetromino.shape[y].length; x++) {
+          if (currentTetromino.shape[y][x]) {
+            const nextX = currentTetromino.x + x;
+            const nextY = currentTetromino.y + y;
+            if (
+              floorCollision(nextY) || hitWall(nextX) || hitBlock(nextX, nextY)
+            ) {
+              return true;
+            }
+          }
+        }
+      }
+      // returns false if no collision detected
+      return false;
+    }
+
+    // game loop
+    function update(time = 0) {
+
+      if(collision(currentTetromino)) {
+        currentTetromino.y--;
+        // merge tetromino into board
+        currentTetromino.shape.forEach((row, y) => {
+          row.forEach((value, x) => {
+            if (value) {
+              board[currentTetromino.y + y][currentTetromino.x + x] = currentTetromino.color;
+            }
+          });
+        });
+        // get new tetromino
+        currentTetromino = getRandomTetromino();
+      }
+
+      currentTetromino.y++;
+
+      drawBoard();
+      requestAnimationFrame(update);
+    }
+
+    update();
+
 
 
 
