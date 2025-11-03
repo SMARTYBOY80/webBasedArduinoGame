@@ -115,7 +115,7 @@ export default function Tetris() {
 
     let currentTetromino = getRandomTetromino();
     let dropCounter = 0;
-    let dropInterval = 1000;
+    let dropInterval = 100;
     let lastTime = 0;
 
     // get random tetromino
@@ -145,12 +145,12 @@ export default function Tetris() {
             );
           }
         }
+      }
 
+      // draw current tetromino
         drawTetromino(currentTetromino);
 
-      }
     }
-
 
     // draw tetromino
     function drawTetromino(currentTetromino: tetromino) {
@@ -214,16 +214,12 @@ export default function Tetris() {
     // game loop
     function update(time = 0) {
 
-      const deltaTime = time - lastTime;
-      lastTime = time;
-      dropCounter += deltaTime;
 
-      if (dropCounter > dropInterval) {
-        dropCounter = 0;
-      }
 
       if(collision(currentTetromino)) {
-        currentTetromino.y--;
+
+        currentTetromino.y--; // move back up to last valid position
+
         // merge tetromino into board
         currentTetromino.shape.forEach((row, y) => {
           row.forEach((value, x) => {
@@ -242,6 +238,22 @@ export default function Tetris() {
           gameOver = true;
           drawBoard();
         }
+
+        // check for completed lines
+
+        for (let y = 0; y < boardHeight; y++) {
+          // array.every is soo nice i didnt excpect this to be a thing in js
+          // https://www.w3schools.com/jsref/jsref_every.asp
+          if (board[y].every(cell => cell !== null)) {
+            // remove completed line
+            board.splice(y, 1);
+            // add new empty line at the top
+            board.unshift(Array(boardWidth).fill(null));
+            // update score
+            setScore((prev) => prev + 100);
+          }
+
+
       }
 
       // if game over, alert score and reload page
@@ -249,11 +261,20 @@ export default function Tetris() {
         // TODO: make it look nice in the end
         return;
       }
+    }
 
-      // move tetromino down by one
-      currentTetromino.y++;
+      // move tetromino down by one if drop interval has passed
+
+      if (time - lastTime > dropInterval) {
+          currentTetromino.y++;
+          lastTime = time;
+          dropCounter++;
+      }
 
       drawBoard();
+
+      // updates time aswell
+      // https://developer.mozilla.org/en-US/docs/Web/API/Window/requestAnimationFrame
       requestAnimationFrame(update);
     }
 
@@ -265,6 +286,33 @@ export default function Tetris() {
 
 
     // Game Controls
+
+    // dont have a aurdino to test with right now so using server sent events to simulate button presses aswell 
+
+
+// listen to keyboard events to move the active tetromino
+document.addEventListener('keydown', function(event) {
+      if (event.key === "ArrowLeft") {
+        currentTetromino.x--;
+        if (collision(currentTetromino)) {
+          currentTetromino.x++;
+        }
+      } else if (event.key === "ArrowRight") {
+        currentTetromino.x++;
+        if (collision(currentTetromino)) {
+          currentTetromino.x--;
+        }
+      } else if (event.key === "ArrowDown") {
+        currentTetromino.y++;
+        if (collision(currentTetromino)) {
+          currentTetromino.y--;
+        }
+      }
+    });
+
+
+
+    // this code is very wrong rn but i dont have an arduino to test with so will fix later when i have one cause theres no reason to pull out my hair trying to bug fix this rn
     let left = 0;
     let right = 0;
     const eventSource = new EventSource("http://localhost:4000/events");
