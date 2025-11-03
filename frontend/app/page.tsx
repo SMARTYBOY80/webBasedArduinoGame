@@ -1,0 +1,201 @@
+"use client";
+
+import { useEffect, useState } from "react";
+
+
+// Tetris Game Constants
+// data from https://tetris.wiki/Tetris_Guideline
+
+
+const boardWidth = 10;
+const boardHeight = 20;
+const blockSize = 30;
+
+interface tetromino {
+    shape: number[][];
+    color: string;
+    x: number;
+    y: number;
+}
+
+// tetrominoes
+const tetrominoes: { [key: string]: tetromino } = {
+
+    // all shapes and their rotations
+    I: {
+        shape: [[1, 1, 1, 1]],
+        color: "lightBlue",
+        x: 0,
+        y: 0,
+    },
+    J: {
+        shape: [
+            [1, 0, 0],
+            [1, 1, 1],
+        ],
+        color: "darkBlue",
+        x: 0,
+        y: 0,
+    },
+    L: {
+        shape: [
+            [0, 0, 1],
+            [1, 1, 1],
+        ],
+        color: "orange",
+        x: 0,
+        y: 0,
+    },
+    O: {
+        shape: [
+            [1, 1],
+            [1, 1],
+        ],
+        color: "yellow",
+        x: 0,
+        y: 0,
+    },
+    S: {
+        shape: [
+            [0, 1, 1],
+            [1, 1, 0],
+        ],
+        color: "green",
+        x: 0,
+        y: 0,
+    },
+    Z: {
+        shape: [
+            [1, 1, 0],
+            [0, 1, 1],
+        ],
+        color: "red",
+        x: 0,
+        y: 0,
+    },
+    T: {
+        shape: [
+            [0, 1, 0],
+            [1, 1, 1],
+        ],
+        color: "purple",
+        x: 0,
+        y: 0,
+    },
+};
+
+
+
+
+export default function Tetris() {
+    
+  const [score, setScore] = useState(0);
+  const [gameOver, setGameOver] = useState(false);
+
+  useEffect(() => {
+
+
+    // Game Board
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+    canvas.width = boardWidth * blockSize;
+    canvas.height = boardHeight * blockSize;
+    canvas.style.border = "1px solid #000";
+    canvas.style.backgroundColor = "#2598fe";
+    document.body.appendChild(canvas);
+
+    const board: (string | null)[][] = Array.from({ length: boardHeight }, () =>
+      Array(boardWidth).fill(null)
+    );
+
+
+    // Current Tetromino
+
+    let currentTetromino = getRandomTetromino();
+    let dropCounter = 0;
+    let dropInterval = 1000;
+    let lastTime = 0;
+
+    // get random tetromino
+    function getRandomTetromino(): tetromino {
+      const tetromino = Object.values(tetrominoes)[ Math.floor(Math.random() * Object.values(tetrominoes).length) ];
+      tetromino.x = Math.floor(boardWidth / 2) - Math.ceil(tetromino.shape[0].length / 2);
+      tetromino.y = 0;
+      return tetromino;
+    }
+
+
+    // draw board
+    function drawBoard() {
+      if (ctx == null) return;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // draw tetrominoes that have already hit ground
+      for (let y = 0; y < boardHeight; y++) {
+        for (let x = 0; x < boardWidth; x++) {
+          if (board[y][x]) {
+            ctx.fillStyle = board[y][x]!;
+            ctx.fillRect(
+              x * blockSize,
+              y * blockSize,
+              blockSize,
+              blockSize
+            );
+          }
+        }
+
+        drawTetromino(currentTetromino);
+
+      }
+    }
+
+
+    // draw tetromino
+    function drawTetromino(currentTetromino: tetromino) {
+      if (ctx == null) return;
+      ctx.fillStyle = currentTetromino.color;
+      currentTetromino.shape.forEach((row, y) => {
+        row.forEach((value, x) => {
+          if (value) {
+            ctx.fillRect(
+              (currentTetromino.x + x) * blockSize,
+              (currentTetromino.y + y) * blockSize,
+              blockSize,
+              blockSize
+            );
+          }
+        });
+      });
+    }
+
+  
+    drawBoard();
+
+
+
+
+
+    // Game Controls
+    let left = 0;
+    let right = 0;
+    const eventSource = new EventSource("http://localhost:4000/events");
+
+    eventSource.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      if (data.left) return left++;
+      
+      if (data.right) return right++;
+      
+    };
+
+    return () => {
+      eventSource.close();
+    };
+
+
+  }, []);
+
+  return (
+    <div></div>
+  );
+}
