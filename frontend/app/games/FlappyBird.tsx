@@ -183,6 +183,16 @@ export default function FlappyBird() {
             return false;
         }
 
+        function cullPipes() {
+            // remove pipes that are off the screen
+            for (const pipe of pipes) {
+                if (pipe.x + pipe.width < -10) {
+                    pipes.shift();
+                    console.log('the great culling has occured *laughs evilly');
+                }
+            }
+        }
+
 
         // game loop
         let lastPipeTime = 0;
@@ -197,6 +207,8 @@ export default function FlappyBird() {
 
             // move pipes
             movePipes();
+
+            cullPipes()
 
             // add new pipe every 150 frames
             if (lastPipeTime > 150) {
