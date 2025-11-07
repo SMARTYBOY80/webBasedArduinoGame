@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import {scheduleOnNextTick} from "next/dist/lib/scheduler";
 
 
 // Game Board dimensions
@@ -14,7 +15,7 @@ let gameOver = false;
 export default function FlappyBird() {
 
     // State variables for score
-    const [score, setScore] = useState(0);
+    let [score, setScore] = useState(0);
 
     useEffect(() => {
 
@@ -159,6 +160,30 @@ export default function FlappyBird() {
             }
         }
 
+
+        function checkCollision(ctx : CanvasRenderingContext2D) : boolean {
+            for (const pipe of pipes) {
+                // check for collision with bird
+                if (bird.x < pipe.x + pipe.width &&
+                    bird.x + bird.size > pipe.x &&
+                    bird.y < pipe.y + pipe.height &&
+                    bird.y + bird.size > pipe.y) {
+                        return true;
+                }
+            }
+
+            // check for collision with ground
+            if (bird.y + bird.size > boardHeight - 100) {
+                // puts bird on the ground
+                bird.y = boardHeight - 100 - bird.size;
+                drawScene(ctx);
+                return true;
+            }
+
+            return false;
+        }
+
+
         // game loop
         let lastPipeTime = 0;
         makePipe();
@@ -168,9 +193,6 @@ export default function FlappyBird() {
 
             bird.velocity += gravity;
             bird.y += bird.velocity;
-
-            console.log(typeof (lastPipeTime));
-
             lastPipeTime += 1;
 
             // move pipes
@@ -181,6 +203,14 @@ export default function FlappyBird() {
                 console.log(time);
                 makePipe();
                 lastPipeTime = 0;
+                score += 100
+                setScore(score)
+            }
+
+            // check for collisions with pipes
+            if(checkCollision(ctx)){
+                gameOver = true;
+                return;
             }
 
 
@@ -189,7 +219,8 @@ export default function FlappyBird() {
             // updates time aswell
             // https://developer.mozilla.org/en-US/docs/Web/API/Window/requestAnimationFrame
             requestAnimationFrame(update);
-        }
+
+        };
 
         update();
 
