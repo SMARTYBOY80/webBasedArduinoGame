@@ -1,8 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import {scheduleOnNextTick} from "next/dist/lib/scheduler";
-
+import { useEffect, useRef, useState } from "react";
 
 // Game Board dimensions
 const boardWidth = 900;
@@ -11,8 +9,63 @@ const boardHeight = 600;
 let gameOver = false;
 
 
+// classes
+
+// bird varibles
+class Bird {
+    x : number;
+    // todo reserch why are all numbers defined as number instead of int or float
+    y : number;
+    size : number;
+    velocity : number;
+
+    constructor(y : number, velocity : number) {
+        this.x = 40;
+        this.y = y;
+        this.size = 20;
+        this.velocity = velocity;
+    }
+
+    flap() {
+        this.velocity = -10;
+    }
+
+}
+
+class topPipe {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+
+    constructor(x: number, y: number, height: number) {
+        this.x = x;
+        this.y = y;
+        this.width = 50;
+        this.height = height;
+    }
+}
+
+class bottomPipe {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+
+    constructor(x: number, y: number, height: number) {
+        this.x = x;
+        this.y = y;
+        this.width = 50;
+        this.height = height;
+    }
+}
+
+
 // Flappy Bird Component
 export default function FlappyBird() {
+
+    // Game Board
+    const canvasRef = useRef<HTMLCanvasElement>(null);
 
     // State variables for score
     let [score, setScore] = useState(0);
@@ -20,10 +73,11 @@ export default function FlappyBird() {
     useEffect(() => {
 
 
-        // Game Board
+
 
         // create canvas element
-        const canvas = document.createElement("canvas");
+        const canvas = canvasRef.current;
+        if (canvas == null ){return}
         const ctx = canvas.getContext("2d");
 
         // set canvas dimensions
@@ -33,7 +87,7 @@ export default function FlappyBird() {
         // style canvas
         canvas.style.border = "1px solid #000";
         canvas.style.backgroundColor = "#2598fe";
-        document.body.appendChild(canvas);
+
 
         // Game Variables
 
@@ -48,63 +102,13 @@ export default function FlappyBird() {
         // so it wont clip the floor
         const maxPipeHeight = boardHeight - pipeGap - 240;
 
+        // array to hold pipes that will be culled when off screen
         const pipes: Array<topPipe | bottomPipe> = [];
-
-
-        // bird varibles
-        class Bird {
-            x : number;
-            // todo reserch why are all numbers defined as number instead of int or float
-            y : number;
-            size : number;
-            velocity : number;
-
-            constructor(y : number, velocity : number) {
-                this.x = 40;
-                this.y = y;
-                this.size = 20;
-                this.velocity = velocity;
-            }
-
-            flap() {
-                this.velocity = -10;
-            }
-
-        }
-
-        class topPipe {
-            x: number;
-            y: number;
-            width: number;
-            height: number;
-
-            constructor(x: number, y: number, height: number) {
-                this.x = x;
-                this.y = y;
-                this.width = 50;
-                this.height = height;
-            }
-        }
-
-        class bottomPipe {
-            x: number;
-            y: number;
-            width: number;
-            height: number;
-
-            constructor(x: number, y: number, height: number) {
-                this.x = x;
-                this.y = y;
-                this.width = 50;
-                this.height = height;
-            }
-        }
 
 
         const bird = new Bird(150, 0);
 
-        // draw scene
-
+        // draw scene functions
 
         function drawGround(ctx : CanvasRenderingContext2D) {
             // draw ground
@@ -199,21 +203,28 @@ export default function FlappyBird() {
         makePipe();
         function update(time = 0) {
             if (ctx == null ){return}
+
+            // draw everything
             drawScene(ctx)
 
+            // update bird
             bird.velocity += gravity;
             bird.y += bird.velocity;
+
+            // update pipe timer
             lastPipeTime += 1;
 
             // move pipes
             movePipes();
 
+            // remove off screen pipes
             cullPipes()
 
             // add new pipe every 150 frames
             if (lastPipeTime > 150) {
-                console.log(time);
+                // make a new pipe
                 makePipe();
+                // reset timer and increase score
                 lastPipeTime = 0;
                 score += 100
                 setScore(score)
@@ -225,9 +236,6 @@ export default function FlappyBird() {
                 return;
             }
 
-
-
-
             // updates time aswell
             // https://developer.mozilla.org/en-US/docs/Web/API/Window/requestAnimationFrame
             requestAnimationFrame(update);
@@ -235,11 +243,6 @@ export default function FlappyBird() {
         };
 
         update();
-
-
-
-
-
 
         // Game Controls
 
@@ -255,7 +258,12 @@ export default function FlappyBird() {
         // return the game board and score to the screen
         <div>
             <p>Score: {score}</p>
-
+            <canvas
+                ref={canvasRef}
+                width={boardWidth}
+                height={boardHeight}
+                className="border border-black bg-blue-400"
+            />
         </div>
     );
 }

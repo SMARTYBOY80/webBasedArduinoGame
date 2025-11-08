@@ -355,9 +355,9 @@ export default function Tetris() {
                     currentTetromino.shape = originalShape; // revert if collision
                 }
 
-                // play testers found when block is on ground you can still move
+                // playe testers found when block is on ground you can still move
                 // trying to figure out bug
-                // ToDo: fix this bug later
+                // Todo: fix this bug later
             } else if (event.key === " "){
                 do{
                     currentTetromino.y++
