@@ -44,6 +44,7 @@ if (!String.prototype.removeWhitespace) {
 				wss.clients.forEach((client) => {
 					if (client.readyState === WebSocket.OPEN) {
 						client.send(JSON.stringify({ event: "buttonPress", id: button.id }));
+						console.log(`>> [${date.toLocaleTimeString()}]: NOTIF → Button ${button.id} was pressed.`);
 					}
 				});
 			});

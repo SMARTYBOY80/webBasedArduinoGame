@@ -7,7 +7,8 @@ function initalise(date) {
 		`
       ---- CONFIGURATION ----
       !! PLEASE ENSURE YOU HAVE UPLOADED THE FIRMWARE ONTO THE BOARD BEFORE CONNECTING IT VIA THIS CONFIGURATION.
-      !! IF YOU DO NOT HAVE ANY OF THE COMPONENTS CONFIGURED (EXCEPT THE BOARD), PLEASE TYPE 0.
+      
+	  !! IF ON A MAC OR LINUX SYSTEM, PLEASE ENTER 0 TO SCAN ALL PORTS.
 
       !! If you're unsure what your port number is, please check the arduino IDE.
 
@@ -17,7 +18,13 @@ function initalise(date) {
 
 	// Attempt to connect to the board via Johnny-Five
 	try {
-		const arduinoBoard = new Board({ port: `COM${boardPort}` });
+		// if com port is 0, try all ports
+		if (boardPort === 0) {
+			const arduinoBoard = new Board();
+			return arduinoBoard;
+		}
+		const arduinoBoard = new Board({ port: `COM${boardPort}`  });
+		
 
 		return arduinoBoard;
 	} catch (error) {
