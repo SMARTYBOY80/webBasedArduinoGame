@@ -19,42 +19,42 @@ if (!String.prototype.removeWhitespace) {
 	const server = http.createServer(app);
 	const wss = new WebSocket.Server({ server });
 
-	// Initalise the hardware components
-	const board = components.board.initalise(date);
-	const buttons = components.buttons.identify(date);
-	const lights = components.lights.identify(date);
+	// // Initalise the hardware components
+	// const board = components.board.initalise(date);
+	// const buttons = components.buttons.identify(date);
+	// const lights = components.lights.identify(date);
 
 	// Generate the website as a static component
 	app.use(express.static("frontend"));
 
-	// ---- LOGIC FOR WHEN THE BOARD IS READY ---- \\
-	board.on("ready", function () {
-		const initalisedButtons = components.buttons.initalise(buttons, date);
-		components.lights.initalise(lights, date);
-
-		// Start the server on port 3000
-		server.listen(3000, () => {
-			console.log(
-				`>> [${date.toLocaleTimeString()}]: NOTIF → Flappy Bird is running at http://localhost:3000 !`.removeWhitespace()
-			);
-		});
-
-		initalisedButtons.forEach((button) => {
-			button.on("press", () => {
-				wss.clients.forEach((client) => {
-					if (client.readyState === WebSocket.OPEN) {
-						client.send(JSON.stringify({ event: "buttonPress", id: button.id }));
-						console.log(`>> [${date.toLocaleTimeString()}]: NOTIF → Button ${button.id} was pressed.`);
-					}
-				});
-			});
-		});
-	});
-
-	board.on("error", (error) => {
-		console.error(
-			`>> [${date.toLocaleTimeString()}]: ERROR → Unexpected Error occurred while connected to the board.`.removeWhitespace()
+	// Start the server on port 3000
+	server.listen(3000, () => {
+		console.log(
+			`>> [${date.toLocaleTimeString()}]: NOTIF → Flappy Bird is running at http://localhost:3000 !`.removeWhitespace()
 		);
-		console.error(error);
 	});
+
+	// ---- LOGIC FOR WHEN THE BOARD IS READY ---- \\
+	// board.on("ready", function () {
+	// 	const initalisedButtons = components.buttons.initalise(buttons, date);
+	// 	components.lights.initalise(lights, date);
+
+	// 	initalisedButtons.forEach((button) => {
+	// 		button.on("press", () => {
+	// 			wss.clients.forEach((client) => {
+	// 				if (client.readyState === WebSocket.OPEN) {
+	// 					client.send(JSON.stringify({ event: "buttonPress", id: button.id }));
+	// 					console.log(`>> [${date.toLocaleTimeString()}]: NOTIF → Button ${button.id} was pressed.`);
+	// 				}
+	// 			});
+	// 		});
+	// 	});
+	// });
+
+	// board.on("error", (error) => {
+	// 	console.error(
+	// 		`>> [${date.toLocaleTimeString()}]: ERROR → Unexpected Error occurred while connected to the board.`.removeWhitespace()
+	// 	);
+	// 	console.error(error);
+	// });
 })();

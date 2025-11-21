@@ -7,16 +7,23 @@
 		<title>Flappy Bird Clone</title>
 	</head>
 	<body>
-		<div id="header">
-			<span class="title"> Flappy Bird (Arduino Game)</span>
-			<span class="author">Made by Jack Smart & Jamie MacDonald</span>
+		<div id="game">
+			<div id="header">
+				<span class="title"> Flappy Bird (Arduino Game)</span>
+				<span class="author">Made by Jack Smart & Jamie MacDonald</span>
+			</div>
+
+			<div id="window">
+				<button class="play">Play</button>
+				<button class="guide">Guide</button>
+				<button class="leaderboard">Leaderboard</button>
+			</div>
+
+			<p id="scoreDisplay">Score: 0</p>
+			<canvas id="gameCanvas" width="900" height="600"></canvas>
 		</div>
-		
-		<p id="scoreDisplay">Score: 0</p>
-            <canvas id="gameCanvas" width="900" height="600"></canvas>
-		<!-- <div id="window">
-		</div> -->
 
 		<script src="assets/js/flappyBird.js"></script>
+		<script src="assets/js/startMenu.js"></script>
 	</body>
 </html>

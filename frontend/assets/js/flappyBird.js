@@ -40,7 +40,7 @@ class bottomPipe {
 const bird = new Bird(150, 0);
 
 // Flappy Bird Component
-window.onload = () => {
+function startGame() {
 	// Game Board
 	const canvas = document.getElementById("gameCanvas");
 	console.log(canvas);
@@ -167,6 +167,7 @@ window.onload = () => {
 	// game loop
 	let lastPipeTime = 0;
 	makePipe();
+
 	function update(time = 0) {
 		// draw everything
 		drawScene(ctx);
@@ -205,10 +206,9 @@ window.onload = () => {
 		requestAnimationFrame(update);
 	}
 	update();
-};
+}
 
 // Game Controls
-
 ws.onmessage = (button) => {
 	// Get the websocket data for the button press
 	const buttonData = JSON.parse(button.data);
@@ -216,11 +216,16 @@ ws.onmessage = (button) => {
 	// console.log(buttonData);
 
 	if (buttonData.event === "buttonPress") {
-
-            if (buttonData.id === 'jump') {
-                  bird.flap();
-            } else {
-                  // TODO: Reset button i assume? 
-            }
+		if (buttonData.id === "jump") {
+			bird.flap();
+		} else {
+			// TODO: Reset button i assume?
+		}
 	}
 };
+
+document.addEventListener("keydown", function(event) {
+	if (event.key === ' ') {
+            bird.flap();
+      }
+});
