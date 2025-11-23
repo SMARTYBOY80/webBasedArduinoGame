@@ -164,6 +164,24 @@ function startGame() {
 		}
 	}
 
+	//reset game
+	function resetGame(){
+		lastPipeTime = 0;
+		score = 0;
+		setScore(score);
+		bird.y = 150;
+		bird.velocity = 0;
+		
+		pipes.length = 0;
+		
+		gameOver = false;
+		update();
+	}
+
+	// expose globally
+	// not the best way but works for now and jamie may know better
+	window.resetGame = resetGame;
+
 	// game loop
 	let lastPipeTime = 0;
 	makePipe();
@@ -206,6 +224,7 @@ function startGame() {
 		requestAnimationFrame(update);
 	}
 	update();
+
 }
 
 // Game Controls
@@ -219,7 +238,8 @@ ws.onmessage = (button) => {
 		if (buttonData.id === "jump") {
 			bird.flap();
 		} else {
-			// TODO: Reset button i assume?
+			console.log("resetting game")
+			resetGame();
 		}
 	}
 };
@@ -228,4 +248,8 @@ document.addEventListener("keydown", function(event) {
 	if (event.key === ' ') {
             bird.flap();
       }
+	  if (event.key === 'r') {
+		console.log("resetting game")
+		resetGame();
+	  }
 });
