@@ -3,6 +3,8 @@ const http = require("http");
 const WebSocket = require("ws");
 const components = require("./hardware/setup/index");
 
+const { writeDB, readDB } = require("./hardware/setup/db/db"); 
+
 // Inject a custom javascript function for readability in the console
 if (!String.prototype.removeWhitespace) {
 	Object.defineProperty(String.prototype, "removeWhitespace", {
@@ -32,6 +34,15 @@ if (!String.prototype.removeWhitespace) {
 		console.log(
 			`>> [${date.toLocaleTimeString()}]: NOTIF → Flappy Bird is running at http://localhost:3000 !`.removeWhitespace()
 		);
+	});
+
+
+wss.on("connection", ws => {
+
+  ws.on("message", message => {
+    const data = JSON.parse(message);
+	writeDB(data.name, data.score); 
+});
 	});
 
 	// ---- LOGIC FOR WHEN THE BOARD IS READY ---- \\

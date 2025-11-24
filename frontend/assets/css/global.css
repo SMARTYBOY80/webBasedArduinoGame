@@ -77,6 +77,19 @@ body {
 	gap: 6rem;
 }
 
+#guideText {
+	display: none;
+}
+
+#leaderboard {
+	display: none;
+	flex-direction: column;
+	align-items: center;
+	gap: 1rem;
+}
+
+
+
 #gameCanvas,
 #scoreDisplay {
 	display: none;

@@ -216,6 +216,11 @@ function startGame() {
 		// check for collisions with pipes
 		if (checkCollision(ctx)) {
 			gameOver = true;
+			let name = prompt("Game Over! Enter your name: ");
+
+			// send name and score to server
+			ws.send(JSON.stringify({ name: name, score: score }));
+
 			return;
 		}
 
