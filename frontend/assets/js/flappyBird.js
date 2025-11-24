@@ -2,7 +2,7 @@
 
 const boardWidth = 900;
 const boardHeight = 600;
-const ws = new WebSocket("ws://localhost:3000");
+window.ws = new WebSocket("ws://localhost:3000");
 
 let gameOver = false;
 

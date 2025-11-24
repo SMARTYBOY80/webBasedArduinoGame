@@ -36,14 +36,20 @@ if (!String.prototype.removeWhitespace) {
 		);
 	});
 
-
 wss.on("connection", ws => {
 
   ws.on("message", message => {
+
+	if(ws.message == "write"){
     const data = JSON.parse(message);
 	writeDB(data.name, data.score); 
+	} 
+	console.log(readDB())
+        ws.send(JSON.stringify(readDB()));
+    });
 });
-	});
+
+	
 
 	// ---- LOGIC FOR WHEN THE BOARD IS READY ---- \\
 	// board.on("ready", function () {
@@ -69,3 +75,4 @@ wss.on("connection", ws => {
 	// 	console.error(error);
 	// });
 })();
+
