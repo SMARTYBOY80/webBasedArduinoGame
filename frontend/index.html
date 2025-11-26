@@ -20,26 +20,47 @@
 					<button class="leaderboard">Leaderboard</button>
 				</section>
 				<section id="guide">
-					<p>example text</p>
-					<button class="back">back</button>
-				</section>
-				<section id="leaderboard">
-					<ol id="leaderboardText">Leaderboard
-						
-					</ol>
-					<button class="back">back</button>
-				</section>
-			</div>
+					<p>
+						<span
+							>Welcome to our clone of the popular retro game
+							<strong>Flappy Bird</strong>.</span
+						>
+						<span>
+							We created this for one of our core modules in our Computing Science
+							Major, and it took us 3 weeks in development (including, debugging
+							and testing).
+						</span>
 
-			<div id="guide window">
-
+						<span>
+							Controls: <br />
+							Jump = The push button you've connected. <br />
+							Reset Game = Hover your hand over the senor you've connected.
+						</span>
+					</p>
+				</section>
+				<section id="leaderboard"></section>
+				<button id="back-btn" class="back">Return</button>
 			</div>
 
 			<p id="scoreDisplay">Score: 0</p>
 			<canvas id="gameCanvas" width="900" height="600"></canvas>
+
+			<div id="gameOverScreen" class="hidden">
+				<h1>Game Over</h1>
+				<p id="finalScore">Score: 0</p>
+
+				<input type="text" id="playerName" placeholder="Enter your name" maxlength="15" />
+
+				<div class="buttons">
+					<button id="submitScore">Submit Score</button>
+					<button id="playAgain">Play Again</button>
+					<button id="goHome">Home</button>
+				</div>
+			</div>
 		</div>
 
 		<script src="assets/js/flappyBird.js"></script>
 		<script src="assets/js/startMenu.js"></script>
+		<script src="assets/js/leaderboard.js"></script>
 	</body>
 </html>

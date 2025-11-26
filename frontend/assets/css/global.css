@@ -17,6 +17,7 @@
 	font-style: normal;
 }
 
+/* -------- GLOBAL STYLES --------*/
 html,
 body {
 	height: 100%;
@@ -27,8 +28,13 @@ body {
 	box-sizing: border-box;
 }
 
+body {
+	background-color: aqua;
+	gap: 2rem;
+}
+
 button {
-	background-color: rgba(255, 255, 255, 0.297);
+	background-color: lightgrey;
 	border: 1px black solid;
 	border-radius: 5px;
 	cursor: pointer;
@@ -37,11 +43,7 @@ button {
 	transition: all 0.2s linear;
 }
 
-body {
-	background-color: aqua;
-	gap: 2rem;
-}
-
+/* -------- GAME STYLES -------- */
 #game {
 	padding-top: 2rem;
 	display: flex;
@@ -77,25 +79,99 @@ body {
 	gap: 6rem;
 }
 
-#guide {
-	display: none;
-}
-
-#leaderboard {
-	display: none;
+#startScreen {
+	display: flex;
 	flex-direction: column;
-	align-items: center;
-	gap: 1rem;
+	gap: 6rem;
 }
 
-
+button:hover {
+	border: 3px black solid;
+	transform: scale(0.9);
+}
 
 #gameCanvas,
 #scoreDisplay {
 	display: none;
 }
 
-/* ---------- HOVER STYLES ----------*/
-button:hover {
-	opacity: 65;
+#guide p {
+	display: flex;
+	flex-direction: column;
+	gap: 2rem;
+}
+
+#guide {
+	width: 75%;
+}
+
+#leaderboard,
+#guide,
+#back-btn {
+	display: none;
+}
+
+#leaderboard {
+      flex-direction: column;
+      overflow: auto;
+}
+
+#back-btn {
+	font-size: 18px;
+}
+
+#game {
+	position: relative;
+}
+
+#gameOverScreen {
+	position: absolute;
+	top: 55%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+
+	width: 50%;
+	padding: 30px;
+	background: rgba(0, 0, 0, 0.85);
+	color: white;
+
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+
+	border-radius: 14px;
+	border: 2px solid white;
+	gap: 15px;
+	text-align: center;
+	z-index: 99;
+}
+
+#gameOverScreen h1 {
+	font-size: 2rem;
+}
+
+#gameOverScreen input {
+	padding: 10px;
+	width: 80%;
+	border-radius: 8px;
+	border: none;
+	outline: none;
+	font-size: 1rem;
+}
+
+#gameOverScreen .buttons {
+	display: flex;
+	gap: 4rem;
+}
+
+#gameOverScreen button {
+      font-size: 20px;
+	padding: 8px 15px;
+	border-radius: 8px;
+	border: none;
+	cursor: pointer;
+}
+
+.hidden {
+	display: none !important;
 }

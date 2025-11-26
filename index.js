@@ -2,8 +2,7 @@ const express = require("express");
 const http = require("http");
 const WebSocket = require("ws");
 const components = require("./hardware/setup/index");
-
-const { writeDB, readDB } = require("./hardware/setup/db/db"); 
+const { writeDatabase, readDatabase } = require("./hardware/setup/database/databaseHandler");
 
 // Inject a custom javascript function for readability in the console
 if (!String.prototype.removeWhitespace) {
@@ -21,13 +20,27 @@ if (!String.prototype.removeWhitespace) {
 	const server = http.createServer(app);
 	const wss = new WebSocket.Server({ server });
 
-	// // Initalise the hardware components
-	// const board = components.board.initalise(date);
-	// const buttons = components.buttons.identify(date);
-	// const lights = components.lights.identify(date);
+	// Initalise the hardware components
+	const board = components.board.initalise(date);
+	const buttons = components.buttons.identify(date);
+	const lights = components.lights.identify(date);
 
 	// Generate the website as a static component
 	app.use(express.static("frontend"));
+
+      // Initalise a leaderboard endpoint so we can fetch the leaderboard from the database
+	app.get("/api/leaderboard", (request, response) => {
+		try {
+			const database = readDatabase();
+			response.json(database.scores);
+		} catch (error) {
+			response.status(500).json({ error: "Failed to load leaderboard." });
+			console.error("Failed to load leaderboard:");
+			console.error(error);
+
+			return null;
+		}
+	});
 
 	// Start the server on port 3000
 	server.listen(3000, () => {
@@ -36,43 +49,49 @@ if (!String.prototype.removeWhitespace) {
 		);
 	});
 
-wss.on("connection", ws => {
+	wss.on("connection", (ws) => {
 
-  ws.on("message", message => {
+		ws.on("message", (message) => {
+			try {
+				const data = JSON.parse(message);
 
-	if(ws.message == "write"){
-    const data = JSON.parse(message);
-	writeDB(data.name, data.score); 
-	} 
-	console.log(readDB())
-        ws.send(JSON.stringify(readDB()));
-    });
-});
+				// SAVE SCORE TO DATABASE
+				if (data.name && typeof data.score === "number") {
+					writeDatabase(data.name, data.score);
+				}
 
-	
+				ws.send(JSON.stringify({ event: "scoreSaved" }));
+			} catch (error) {
+				console.log(">> Message was not JSON:", message.toString());
+			}
+		});
+	});
 
 	// ---- LOGIC FOR WHEN THE BOARD IS READY ---- \\
-	// board.on("ready", function () {
-	// 	const initalisedButtons = components.buttons.initalise(buttons, date);
-	// 	components.lights.initalise(lights, date);
+	board.on("ready", function () {
+		// Initalise all configured buttons
+		const initalisedButtons = components.buttons.initalise(buttons, date);
 
-	// 	initalisedButtons.forEach((button) => {
-	// 		button.on("press", () => {
-	// 			wss.clients.forEach((client) => {
-	// 				if (client.readyState === WebSocket.OPEN) {
-	// 					client.send(JSON.stringify({ event: "buttonPress", id: button.id }));
-	// 					console.log(`>> [${date.toLocaleTimeString()}]: NOTIF → Button ${button.id} was pressed.`);
-	// 				}
-	// 			});
-	// 		});
-	// 	});
-	// });
+		// Initalise all configured LEDs
+		components.lights.initalise(lights, date);
 
-	// board.on("error", (error) => {
-	// 	console.error(
-	// 		`>> [${date.toLocaleTimeString()}]: ERROR → Unexpected Error occurred while connected to the board.`.removeWhitespace()
-	// 	);
-	// 	console.error(error);
-	// });
+		// For all the buttons configured, send an event to the website for further validation
+		initalisedButtons.forEach((button) => {
+			button.on("press", () => {
+				wss.clients.forEach((client) => {
+					if (client.readyState === WebSocket.OPEN) {
+						client.send(JSON.stringify({ event: "buttonPress", id: button.id }));
+					}
+				});
+			});
+		});
+	});
+
+	// If the board receives an error, then display it in the console
+	board.on("error", (error) => {
+		console.error(
+			`>> [${date.toLocaleTimeString()}]: ERROR → Unexpected Error occurred while connected to the board.`.removeWhitespace()
+		);
+		console.error(error);
+	});
 })();
-

@@ -1,60 +1,57 @@
-
-
 const game = [document.getElementById("gameCanvas"), document.getElementById("scoreDisplay")];
+
 const gameWindow = document.getElementById("window");
-const startScreen = document.getElementById("startScreen")
-const leaderboard = document.getElementById("leaderboard")
-const guide = document.getElementById("guide")
-const buttons = Object.values(document.getElementsByTagName("button"));
-let leaderboardText = document.getElementById("leaderboardText")
+const startScreen = document.getElementById("startScreen");
+const guide = document.getElementById("guide");
+const leaderboard = document.getElementById("leaderboard");
+const backButton = document.getElementById("back-btn");
+const buttons = document.querySelectorAll("button");
 
-const ws = window.ws;
+// All pages that get opened from the menu
+const pages = [guide, leaderboard];
 
+function hidePages() {
+	pages.forEach((page) => {
+		if (page) page.style.display = "none";
+	});
+}
 
-ws.onmessage = (event) => {
-    const data = JSON.parse(event.data);
-    console.log(data);
-    fillLeaderboard(data);
-};
+function showGame() {
+	gameWindow.style.display = "none";
+	game.forEach((element) => (element.style.display = "block"));
+	startGame();
+}
 
+function goHome() {
+	startScreen.style.display = "flex";
+	backButton.style.display = "none";
+	hidePages();
+}
 
-
-function fillLeaderboard(data){
-	for(score of data.scores){
-    console.log(score)
-    leaderboardText.innerHTML += `<li>${score.name}, ${score.score}</li>`;
-
-	}}
-
-
+// Handle logic for when each button is clicked
 buttons.forEach((button) => {
 	button.addEventListener("click", () => {
+		
+            // Logic for when the back button is pressed
+		if (button.className === "back") {
+			goHome();
+			return;
+		}
 
-            // If the play button was clicked, then start the game
+            // Logic for when the play button is pressed
 		if (button.className === "play") {
-			gameWindow.style.display = "none";
-			game.map((port) => {
-				port.style.display = "block";
-			});
-                  startGame();
-		} else if (button.className == "guide"){
-			
-			startScreen.style.display = "none"
-			
-			guide.style.display = "block"
-		} else if (button.className == "leaderboard"){
-			startScreen.style.display = "none"
-			
-			leaderboard.style.display = "block"
+			showGame();
+			return;
+		}
 
-			ws.send("give me DB");
-			
-		} else if (button.className == "back"){
-			
-			startScreen.style.display = "block"
-			
-			guide.style.display = "none"
-			leaderboard.style.display = "none"
+            // Logic for when the guide / leaderboard button is pressed
+		const target = document.getElementById(button.className);
+
+		if (target) {
+			startScreen.style.display = "none";
+			hidePages();
+			target.style.display = "flex";
+			backButton.style.display = "flex";
 		}
 	});
 });

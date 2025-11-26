@@ -1,10 +1,22 @@
 // game variables and classes
+const gameOverScreen = document.getElementById("gameOverScreen");
+const finalScoreText = document.getElementById("finalScore");
+const playerNameInput = document.getElementById("playerName");
+const submitScoreBtn = document.getElementById("submitScore");
+const playAgainBtn = document.getElementById("playAgain");
+const goHomeBtn = document.getElementById("goHome");
 
 const boardWidth = 900;
 const boardHeight = 600;
 window.ws = new WebSocket("ws://localhost:3000");
 
 let gameOver = false;
+let animationId = null;
+
+// global game state
+let pipes = [];
+let score = 0;
+let lastPipeTime = 0;
 
 class Bird {
 	constructor(y, velocity) {
@@ -39,11 +51,39 @@ class bottomPipe {
 
 const bird = new Bird(150, 0);
 
+// reset game function
+function resetGame() {
+	// stop previous game loop
+	if (animationId) {
+		cancelAnimationFrame(animationId);
+		animationId = null;
+	}
+
+	gameOver = true;
+
+	// reset bird
+	bird.y = 150;
+	bird.velocity = 0;
+
+	// clear pipes
+	pipes = [];
+
+	// reset score
+	score = 0;
+	lastPipeTime = 0;
+
+	const scoreDisplay = document.getElementById("scoreDisplay");
+	scoreDisplay.innerText = `Score: 0`;
+
+	startGame();
+}
+
 // Flappy Bird Component
 function startGame() {
+	gameOver = false;
+
 	// Game Board
 	const canvas = document.getElementById("gameCanvas");
-	console.log(canvas);
 	const ctx = canvas.getContext("2d");
 
 	// style game board
@@ -52,10 +92,8 @@ function startGame() {
 
 	// score display
 	const scoreDisplay = document.getElementById("scoreDisplay");
-	let score = 0;
 
 	// Game Variables
-
 	const gravity = 0.5;
 
 	// pipe variables
@@ -66,9 +104,6 @@ function startGame() {
 
 	// so it wont clip the floor
 	const maxPipeHeight = boardHeight - pipeGap - 240;
-
-	// array to hold pipes that will be culled when off screen
-	const pipes = [];
 
 	// draw scene functions
 
@@ -117,6 +152,7 @@ function startGame() {
 
 		pipes.push(topPipeObj);
 		pipes.push(bottomPipeObj);
+		console.log(pipes);
 	}
 
 	function movePipes() {
@@ -156,37 +192,20 @@ function startGame() {
 
 	function cullPipes() {
 		// remove pipes that are off the screen
-		for (const pipe of pipes) {
-			if (pipe.x + pipe.width < -10) {
-				pipes.shift();
+		for (let i = pipes.length - 1; i >= 0; i--) {
+			if (pipes[i].x + pipes[i].width < -10) {
+				pipes.splice(i, 1);
 				console.log("the great culling has occured *laughs evilly");
 			}
 		}
 	}
 
-	//reset game
-	function resetGame(){
-		lastPipeTime = 0;
-		score = 0;
-		setScore(score);
-		bird.y = 150;
-		bird.velocity = 0;
-		
-		pipes.length = 0;
-		
-		gameOver = false;
-		update();
-	}
-
-	// expose globally
-	// not the best way but works for now and jamie may know better
-	window.resetGame = resetGame;
-
 	// game loop
-	let lastPipeTime = 0;
 	makePipe();
 
 	function update(time = 0) {
+		if (gameOver) return;
+
 		// draw everything
 		drawScene(ctx);
 
@@ -209,52 +228,87 @@ function startGame() {
 			makePipe();
 			// reset timer and increase score
 			lastPipeTime = 0;
-			score += 100;
-			setScore(score);
+
+			if (pipes.length === 8) {
+				score += 1;
+				setScore(score);
+			}
 		}
 
 		// check for collisions with pipes
 		if (checkCollision(ctx)) {
 			gameOver = true;
-			let name = prompt("Game Over! Enter your name: ");
 
-			// send name and score to server
-			ws.send(JSON.stringify({ name: name, score: score }));
+			finalScoreText.innerText = `Score: ${score}`;
+			gameOverScreen.classList.remove("hidden");
 
 			return;
 		}
 
 		// updates time aswell
 		// https://developer.mozilla.org/en-US/docs/Web/API/Window/requestAnimationFrame
-		requestAnimationFrame(update);
+		animationId = requestAnimationFrame(update);
 	}
 	update();
-
 }
+
+// Game over Controls
+
+// Logic for submitting the score
+submitScoreBtn.addEventListener("click", () => {
+	const name = playerNameInput.value.trim();
+
+	if (name.length > 0) {
+		ws.send(JSON.stringify({ name, score }));
+		submitScoreBtn.innerText = "Submitted! :D";
+		submitScoreBtn.disabled = true;
+	}
+});
+
+// Logic for playing again
+playAgainBtn.addEventListener("click", () => {
+	gameOverScreen.classList.add("hidden");
+	submitScoreBtn.innerText = "Submit Score";
+	submitScoreBtn.disabled = false;
+	playerNameInput.value = "";
+
+	resetGame();
+});
+
+// Logic for going back to the main screen
+goHomeBtn.addEventListener("click", () => {
+	gameOverScreen.classList.add("hidden");
+	submitScoreBtn.innerText = "Submit Score";
+	submitScoreBtn.disabled = false;
+	playerNameInput.value = "";
+
+	document.getElementById("window").style.display = "flex";
+	document.getElementById("startScreen").style.display = "flex";
+
+	document.getElementById("gameCanvas").style.display = "none";
+	document.getElementById("scoreDisplay").style.display = "none";
+});
 
 // Game Controls
 ws.onmessage = (button) => {
 	// Get the websocket data for the button press
 	const buttonData = JSON.parse(button.data);
-
-	// console.log(buttonData);
-
 	if (buttonData.event === "buttonPress") {
 		if (buttonData.id === "jump") {
 			bird.flap();
 		} else {
-			console.log("resetting game")
+			console.log("resetting game");
 			resetGame();
 		}
 	}
 };
 
-document.addEventListener("keydown", function(event) {
-	if (event.key === ' ') {
-            bird.flap();
-      }
-	  if (event.key === 'r') {
-		console.log("resetting game")
-		resetGame();
-	  }
-});
+// document.addEventListener("keydown", function (event) {
+// 	if (event.key === " ") {
+// 		bird.flap();
+// 	}
+// 	if (event.key === "r") {
+// 		console.log("resetting game");
+// 		resetGame();
+// 	}
+// });
