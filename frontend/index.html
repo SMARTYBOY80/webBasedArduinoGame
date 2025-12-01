@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<link rel="stylesheet" href="assets/css/global.css" />
+		<title>Flappy Bird Clone</title>
+	</head>
+	<body>
+		<div id="game">
+			<div id="header">
+				<span class="title"> Flappy Bird (Arduino Game)</span>
+				<span class="author">Made by Jack Smart & Jamie MacDonald</span>
+			</div>
+
+			<div id="window">
+				<section id="startScreen">
+					<button class="play">Play</button>
+					<button class="guide">Guide</button>
+					<button class="leaderboard">Leaderboard</button>
+				</section>
+				<section id="guide">
+					<p>
+						<span
+							>Welcome to our clone of the popular retro game
+							<strong>Flappy Bird</strong>.</span
+						>
+						<span>
+							We created this for one of our core modules in our Computing Science
+							Major, and it took us 3 weeks in development (including, debugging
+							and testing).
+						</span>
+
+						<span>
+							Controls: <br />
+							Jump = The push button you've connected. <br />
+							Reset Game = Hover your hand over the senor you've connected.
+						</span>
+					</p>
+				</section>
+				<section id="leaderboard"></section>
+				<button id="back-btn" class="back">Return</button>
+			</div>
+
+			<p id="scoreDisplay">Score: 0</p>
+			<canvas id="gameCanvas" width="900" height="600"></canvas>
+
+			<div id="gameOverScreen" class="hidden">
+				<h1>Game Over</h1>
+				<p id="finalScore">Score: 0</p>
+
+				<input type="text" id="playerName" placeholder="Enter your name" maxlength="15" />
+
+				<div class="buttons">
+					<button id="submitScore">Submit Score</button>
+					<button id="playAgain">Play Again</button>
+					<button id="goHome">Home</button>
+				</div>
+			</div>
+		</div>
+
+		<script src="assets/js/flappyBird.js"></script>
+		<script src="assets/js/startMenu.js"></script>
+		<script src="assets/js/leaderboard.js"></script>
+	</body>
+</html>
