@@ -24,6 +24,7 @@ if (!String.prototype.removeWhitespace) {
 	const board = components.board.initalise(date);
 	const buttons = components.buttons.identify(date);
 	const lights = components.lights.identify(date);
+	const sensors = components.sensor.identify(date);
 
 	// Generate the website as a static component
 	app.use(express.static("frontend"));
@@ -75,6 +76,8 @@ if (!String.prototype.removeWhitespace) {
 		// Initalise all configured LEDs
 		components.lights.initalise(lights, date);
 
+		const initalisedSensors = components.sensor.initalise(sensors, date);
+
 		// For all the buttons configured, send an event to the website for further validation
 		initalisedButtons.forEach((button) => {
 			button.on("press", () => {
@@ -85,6 +88,21 @@ if (!String.prototype.removeWhitespace) {
 				});
 			});
 		});
+		initalisedSensors.forEach((sensor) => {
+			sensor.on("motionstart", () => {
+				wss.clients.forEach((client) => {
+					if (client.readyState === WebSocket.OPEN) {
+						client.send(JSON.stringify({
+							event: "sensorMotion",
+							id: sensor.id
+						}));
+					}
+				});
+			});
+		});
+
+
+
 	});
 
 	// If the board receives an error, then display it in the console

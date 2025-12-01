@@ -13,6 +13,7 @@
     "express": "^5.1.0",
     "johnny-five": "^2.1.0",
     "readline-sync": "^1.4.10",
+    "serialport": "^13.0.0",
     "ws": "^8.18.3"
   }
 }

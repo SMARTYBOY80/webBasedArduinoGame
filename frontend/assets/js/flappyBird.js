@@ -290,18 +290,36 @@ goHomeBtn.addEventListener("click", () => {
 });
 
 // Game Controls
-ws.onmessage = (button) => {
+ws.onmessage = (message) => {
 	// Get the websocket data for the button press
-	const buttonData = JSON.parse(button.data);
-	if (buttonData.event === "buttonPress") {
-		if (buttonData.id === "jump") {
+	const messageData = JSON.parse(message.data);
+
+
+	if (messageData.event === "buttonPress") {
+		console.log("button press detected:", messageData.id);
+		if (messageData.id === "jump") {
 			bird.flap();
 		} else {
 			console.log("resetting game");
 			resetGame();
 		}
 	}
+
+	if(messageData.event==="sensorMotion"){
+		console.log("sensor motion detected:", messageData.id);
+		if (messageData.id === "flap-sensor") {
+			bird.flap();
+		} else {
+				gameOverScreen.classList.add("hidden");
+				submitScoreBtn.innerText = "Submit Score";
+				submitScoreBtn.disabled = false;
+				playerNameInput.value = "";
+
+		resetGame();
+	}}
 };
+
+
 
 // document.addEventListener("keydown", function (event) {
 // 	if (event.key === " ") {
