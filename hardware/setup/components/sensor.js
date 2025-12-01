@@ -11,6 +11,7 @@ function identify(date) {
         id: "flap-sensor",
         pin: undefined,
     }
+    
     ];
 
 	// For each button we require, ask what pin the button is located at

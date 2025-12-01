@@ -39,7 +39,10 @@ function identify(date) {
 function initalise(leds, date) {
 	// Connect each LED to Johnny Five
 	try {
-		leds = leds.map((led) => new Led(led.pin));
+		leds = leds.map((led) => new Led({
+			pin: led.pin,
+			id: led.id
+		}));
 		leds.forEach((led) => {
                   led.on();
             })

@@ -74,9 +74,25 @@ if (!String.prototype.removeWhitespace) {
 		const initalisedButtons = components.buttons.initalise(buttons, date);
 
 		// Initalise all configured LEDs
-		components.lights.initalise(lights, date);
+		const leds =  components.lights.initalise(lights, date);
 
 		const initalisedSensors = components.sensor.initalise(sensors, date);
+
+			initalisedSensors.forEach((sensor) => {
+			sensor.on("motionstart", () => {
+				wss.clients.forEach((client) => {
+					console.log("sensor motion detected:", sensor.id);
+					if (client.readyState === WebSocket.OPEN) {
+						console.log("sensor motion detected:", sensor.id);
+						client.send(JSON.stringify({
+							event: "sensorMotion",
+							id: sensor.id
+						}));
+					}
+				});
+			});
+		});
+
 
 		// For all the buttons configured, send an event to the website for further validation
 		initalisedButtons.forEach((button) => {
@@ -85,17 +101,14 @@ if (!String.prototype.removeWhitespace) {
 					if (client.readyState === WebSocket.OPEN) {
 						client.send(JSON.stringify({ event: "buttonPress", id: button.id }));
 					}
-				});
-			});
-		});
-		initalisedSensors.forEach((sensor) => {
-			sensor.on("motionstart", () => {
-				wss.clients.forEach((client) => {
-					if (client.readyState === WebSocket.OPEN) {
-						client.send(JSON.stringify({
-							event: "sensorMotion",
-							id: sensor.id
-						}));
+					if (button.id==="reset"){
+						console.log("reset button pressed");
+						leds.forEach((led) => {led.off()});
+						leds.filter((led)=>led.id==="red").forEach((led) => {led.on()});
+					}
+					if (button.id==="jump"){
+						leds.forEach((led) => {led.off()});
+						leds.filter((led)=>led.id==="green").forEach((led) => {led.on()});
 					}
 				});
 			});

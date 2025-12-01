@@ -293,10 +293,10 @@ goHomeBtn.addEventListener("click", () => {
 ws.onmessage = (message) => {
 	// Get the websocket data for the button press
 	const messageData = JSON.parse(message.data);
+	console.log(messageData);
 
 
 	if (messageData.event === "buttonPress") {
-		console.log("button press detected:", messageData.id);
 		if (messageData.id === "jump") {
 			bird.flap();
 		} else {
